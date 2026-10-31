@@ -159,3 +159,6 @@ end;
 $$;
 
 revoke all on function public.ktv_apply_action(text,jsonb) from public, anon, authenticated;
+
+-- Permit the trusted Edge Function's service-role client to invoke the action handler.
+grant execute on function public.ktv_apply_action(text,jsonb) to service_role;
