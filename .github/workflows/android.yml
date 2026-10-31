@@ -1,4 +1,5 @@
 name: Build OU KTV Android APK
+# Builds the uploaded v2 source archive into a debug APK artifact.
 on:
   workflow_dispatch:
   push:
