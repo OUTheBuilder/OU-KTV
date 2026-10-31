@@ -35,8 +35,7 @@ Deno.serve(async (req) => {
     if (path === "/login" && req.method === "POST") {
       const body = await req.json();
       const displayName = String(body.display_name || body.name || "Guest").slice(0, 40);
-      // Test access intentionally does not create an email account.
-      return json({ token: crypto.randomUUID(), user: { display_name: displayName, test_mode: true } });
+      return json({ token: crypto.randomUUID(), email: body.email || "", user: { display_name: displayName, test_mode: true } });
     }
 
     if (path === "/ktvs" && req.method === "POST") {
@@ -65,12 +64,11 @@ Deno.serve(async (req) => {
       return json(data);
     }
 
-    if (path === "/popular" && req.method === "GET") {
-      return json({ songs: [], message: "Connect a YouTube Data API key to enable live catalog search." });
-    }
-    if (path === "/search" && req.method === "GET") {
-      return json({ results: [], message: "Live song search needs a YouTube Data API key. No key is embedded in the app." });
-    }
+    // Client expects arrays. Empty arrays intentionally activate its built-in
+    // popular-song suggestions; live search is enabled after a server-side
+    // YouTube Data API key is configured.
+    if (path === "/popular" && req.method === "GET") return json([]);
+    if (path === "/search" && req.method === "GET") return json([]);
 
     return json({ error: "Endpoint not implemented yet", path }, 404);
   } catch (error) {
