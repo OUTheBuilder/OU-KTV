@@ -1,0 +1,2 @@
+[functions.ktv-api]
+verify_jwt = false
