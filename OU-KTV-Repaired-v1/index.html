@@ -1,0 +1,634 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="neonpop">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#E91E8C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>O|U KTV</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="app">
+
+<!-- ============ LANDING / LOGIN SCREEN ============ -->
+<div id="login-screen" class="screen landing-screen hidden">
+  <div class="landing-bg"></div>
+
+  <!-- Top bar -->
+  <header class="landing-top">
+    <div class="landing-brand">
+      <div class="landing-swoosh">
+        <span class="swoosh swoosh-1"></span>
+        <span class="swoosh swoosh-2"></span>
+      </div>
+      <div>
+        <div id="login-app-name" class="landing-logo-text"><span class="ll-pink">O|U</span> KTV</div>
+        <div id="login-app-tagline" class="landing-logo-sub">KARAOKE TOGETHER</div>
+      </div>
+    </div>
+    <div class="landing-top-actions">
+      <button class="landing-menu-btn" id="landing-refresh-btn" title="Refresh"></button>
+      <button class="landing-menu-btn" id="landing-settings-btn" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="landing-content">
+
+    <!-- Headline -->
+    <h1 class="landing-headline">QUEUE KARAOKE SONGS<br>FROM <span class="hl-pink">ANY PHONE.</span></h1>
+    <p class="landing-subtext">Guests scan a ktv code, search songs, and add them instantly. Host controls playback on ktv screen.</p>
+
+    <!-- Host & Join cards -->
+    <div class="landing-cards">
+      <div class="landing-card card-host">
+        <div class="card-icon card-icon-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8"/><path d="M12 18v4"/></svg>
+        </div>
+        <h3 class="card-title ct-teal">HOST THE KTV</h3>
+        <p class="card-desc">Create a ktv, share the code, and control playback on the big screen.</p>
+        <button id="landing-create-btn" class="landing-btn lb-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+          CREATE KTV
+        </button>
+      </div>
+
+      <div class="landing-card card-join">
+        <div class="card-icon card-icon-pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h3 class="card-title ct-pink">JOIN THE KTV</h3>
+        <p class="card-desc">Enter a ktv code or scan a QR to start adding songs from your phone.</p>
+        <div class="join-row landing-join-row">
+          <input type="text" id="login-join-code" placeholder="KTV code" maxlength="6" autocomplete="off">
+          <button id="login-join-btn" class="landing-btn lb-pink lb-go" title="Join">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <button id="login-qr-btn" class="landing-btn lb-qr" title="Scan QR">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email login removed — now handled by pop-up registration modal -->
+
+  <!-- Footer (editable via admin panel) -->
+  <footer class="landing-footer" id="landing-footer">
+    <div class="footer-left">
+      <p class="footer-credit" id="footer-credit"></p>
+      <p class="footer-support" id="footer-support"></p>
+      <div class="footer-links" id="footer-links"></div>
+    </div>
+    <div class="footer-qr" id="footer-qr"></div>
+  </footer>
+
+  </div>
+</div>
+
+<!-- ============ HOME / LOBBY (SingKTV-style) ============ -->
+<div id="home-screen" class="screen landing-screen hidden">
+  <div class="landing-bg"></div>
+
+  <!-- Top bar -->
+  <header class="landing-top">
+    <div class="landing-brand">
+      <div class="landing-swoosh">
+        <span class="swoosh swoosh-1"></span>
+        <span class="swoosh swoosh-2"></span>
+      </div>
+      <div>
+        <div id="home-app-name" class="landing-logo-text"><span class="ll-pink">O|U</span> KTV</div>
+        <div id="home-app-tagline" class="landing-logo-sub">KARAOKE TOGETHER</div>
+      </div>
+    </div>
+    <div class="landing-top-actions">
+      <button class="landing-menu-btn" id="home-refresh-btn" title="Refresh"></button>
+      <button class="landing-menu-btn" id="settings-btn" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="landing-content">
+
+    <!-- Headline -->
+    <h1 class="landing-headline">QUEUE KARAOKE SONGS<br>FROM <span class="hl-pink">ANY PHONE.</span></h1>
+    <p class="landing-subtext">Guests scan a ktv code, search songs, and add them instantly. Host controls playback on ktv screen.</p>
+
+    <!-- Host & Join cards -->
+    <div class="landing-cards">
+      <div class="landing-card card-host">
+        <div class="card-icon card-icon-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8"/><path d="M12 18v4"/></svg>
+        </div>
+        <h3 class="card-title ct-teal">HOST THE KTV</h3>
+        <p class="card-desc">Create a ktv, share the code, and control playback on the big screen.</p>
+        <button id="create-ktv-btn" class="landing-btn lb-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+          CREATE KTV
+        </button>
+      </div>
+
+      <div class="landing-card card-join">
+        <div class="card-icon card-icon-pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h3 class="card-title ct-pink">JOIN THE KTV</h3>
+        <p class="card-desc">Enter a ktv code or scan a QR to start adding songs from your phone.</p>
+        <div class="join-row landing-join-row">
+          <input type="text" id="join-code" placeholder="KTV code" maxlength="6" autocomplete="off">
+          <button id="join-ktv-btn" class="landing-btn lb-pink lb-go" title="Join">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <button id="home-qr-btn" class="landing-btn lb-qr" title="Scan QR">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  <!-- Footer (editable via admin panel) -->
+  <footer class="landing-footer" id="home-footer">
+    <div class="footer-left">
+      <p class="footer-credit" data-footer-credit></p>
+      <p class="footer-support" data-footer-support></p>
+      <div class="footer-links" data-footer-links></div>
+    </div>
+    <div class="footer-qr" data-footer-qr></div>
+  </footer>
+
+  </div>
+</div>
+
+<!-- ============ KTV SCREEN ============ -->
+<div id="ktv-screen" class="screen hidden">
+  <header class="app-header">
+    <button id="leave-ktv-btn" class="icon-btn leave-btn"></button>
+    <div class="header-text">
+      <div class="header-title">KTV <span id="ktv-code-display"></span></div>
+      <div class="header-sub"><span id="guest-count">0</span> singing</div>
+    </div>
+    <div class="header-actions">
+      <button id="ktv-theme-btn" class="icon-btn" title="Switch theme"></button>
+      <button id="ktv-info-btn" class="icon-btn" title="KTV info"></button>
+      <button id="ktv-refresh-btn" class="icon-btn" title="Refresh"></button>
+      <button id="ktv-settings-btn" class="icon-btn" title="Settings"></button>
+    </div>
+  </header>
+
+  <!-- ====== REMOTE MODE (phone joined via QR — controller + muted preview) ====== -->
+  <div id="remote-mode" class="remote-mode hidden">
+    <div class="remote-host-banner">
+      <span class="host-banner-icon"></span>
+      <span class="host-banner-text">You're a <strong>remote controller</strong>. The host device is playing the video with sound.</span>
+      <button id="remote-refresh-btn" class="icon-btn" title="Refresh" style="margin-left:auto;color:var(--accent)"></button>
+    </div>
+    <div class="remote-player-wrap">
+      <div id="remote-yt-player"></div>
+      <video id="remote-videojs-player" class="video-js hidden" playsinline preload="auto"></video>
+      <div class="remote-player-controls">
+        <button id="remote-pip-btn" class="host-ctrl-btn" title="Floating (Picture-in-Picture)"></button>
+        <button id="remote-fullscreen-btn" class="host-ctrl-btn" title="Fullscreen" data-icon="expand"></button>
+      </div>
+      <div id="remote-player-idle" class="player-idle">
+        <div class="idle-icon" data-icon="mic"></div>
+        <p>No song playing</p>
+        <p class="idle-sub">Waiting for the host to play a song</p>
+      </div>
+    </div>
+    <div id="remote-now-playing-bar" class="now-playing-bar hidden">
+      <div class="np-info">
+        <div class="np-label">NOW PLAYING</div>
+        <div id="remote-np-title" class="np-title"></div>
+        <div id="remote-np-by" class="np-by"></div>
+      </div>
+      <div class="np-actions">
+        <button id="remote-skip-btn" class="btn btn-secondary btn-sm">Skip</button>
+      </div>
+    </div>
+    <div class="remote-controls">
+      <button id="remote-stop-btn" class="remote-btn remote-stop">
+        <span class="remote-btn-icon" data-icon="stop"></span>
+        <span class="remote-btn-label">STOP</span>
+      </button>
+      <button id="remote-play-btn" class="remote-btn remote-play">
+        <span class="remote-btn-icon" data-icon="play"></span>
+        <span class="remote-btn-label">PLAY</span>
+      </button>
+      <button id="remote-next-btn" class="remote-btn remote-next">
+        <span class="remote-btn-icon" data-icon="skip"></span>
+        <span class="remote-btn-label">NEXT</span>
+      </button>
+    </div>
+
+    <div class="ktv-search" id="remote-search-panel">
+      <button class="ktv-search-header mode-karaoke" id="remote-live-search-btn" type="button">
+        <span class="ktv-search-header-icon" data-icon="music"></span>
+        <span class="ktv-search-header-text">Click &amp; Search LIVE<br>Music Video</span>
+        <span class="ktv-search-header-arrow" data-icon="search"></span>
+      </button>
+      <div class="ktv-search-tabs">
+        <button class="ktv-tab active" data-ktv-tab="search"><span class="ktv-tab-icon" data-icon="search"></span> Search</button>
+        <button class="ktv-tab" data-ktv-tab="popular"><span class="ktv-tab-icon" data-icon="flame"></span> Popular</button>
+      </div>
+      <div class="ktv-tab-content active" id="remote-tab-search">
+        <div class="search-bar">
+          <input type="text" id="remote-song-search" placeholder="Search KARAOKE music video">
+          <div class="moving-placeholder" id="remote-moving-ph"><span>Search KARAOKE music video </span></div>
+          <button id="remote-search-btn" class="btn btn-primary btn-sm">Search</button>
+        </div>
+        <ul id="remote-search-results" class="results-list"></ul>
+      </div>
+      <div class="ktv-tab-content" id="remote-tab-popular">
+        <ul id="remote-popular-list" class="results-list"></ul>
+      </div>
+    </div>
+    <div class="remote-queue">
+      <div class="sidebar-section" id="remote-now-singing-section" style="display:none">
+        <div class="sidebar-title" data-icon-label="mic">NOW SINGING</div>
+        <ul id="remote-now-singing-list" class="queue-list"></ul>
+      </div>
+      <div class="sidebar-title" data-icon-label="music">UP NEXT</div>
+      <ul id="remote-queue-list" class="queue-list"></ul>
+      <p id="remote-queue-empty" class="sidebar-empty">No songs in queue</p>
+    </div>
+  </div>
+
+  <!-- ====== HOST MODE (main display with video + sound — landscape karaoke) ====== -->
+  <div id="host-mode" class="ktv-body">
+    <div class="ktv-main">
+      <div class="player-wrap" id="player-wrap">
+        <div id="yt-player"></div>
+        <video id="videojs-player" class="video-js hidden" playsinline preload="auto"></video>
+        <div id="player-idle" class="player-idle">
+          <div class="idle-icon" data-icon="mic"></div>
+          <p>No song playing</p>
+          <p class="idle-sub">Search and add a song below to start!</p>
+        </div>
+        <div class="host-player-controls">
+          <button id="pip-btn" class="host-ctrl-btn" title="Floating (Picture-in-Picture)"></button>
+          <button id="fullscreen-btn" class="host-ctrl-btn" title="Fullscreen" data-icon="expand"></button>
+        </div>
+      </div>
+      <div id="now-playing-bar" class="now-playing-bar hidden">
+        <div class="np-info">
+          <div class="np-label">NOW PLAYING</div>
+          <div id="np-title" class="np-title"></div>
+          <div id="np-by" class="np-by"></div>
+        </div>
+        <div class="np-actions">
+          <button id="skip-btn" class="btn btn-secondary btn-sm">Skip</button>
+          <button id="cheer-btn" class="btn btn-teal btn-sm">Cheer</button>
+        </div>
+      </div>
+      <div class="ktv-search" id="host-search-panel">
+        <button class="ktv-search-header mode-karaoke" id="ktv-live-search-btn" type="button">
+          <span class="ktv-search-header-icon" data-icon="music"></span>
+          <span class="ktv-search-header-text">Click &amp; Search LIVE<br>Music Video</span>
+          <span class="ktv-search-header-arrow" data-icon="search"></span>
+        </button>
+        <div class="ktv-search-tabs">
+          <button class="ktv-tab active" data-ktv-tab="search"><span class="ktv-tab-icon" data-icon="search"></span> Search</button>
+          <button class="ktv-tab" data-ktv-tab="popular"><span class="ktv-tab-icon" data-icon="flame"></span> Popular</button>
+        </div>
+        <div class="ktv-tab-content active" id="ktv-tab-search">
+          <div class="search-bar">
+            <input type="text" id="ktv-song-search" placeholder="Search KARAOKE music video">
+            <div class="moving-placeholder" id="ktv-moving-ph"><span>Search KARAOKE music video </span></div>
+            <button id="ktv-search-btn" class="btn btn-primary btn-sm">Search</button>
+          </div>
+          <ul id="ktv-search-results" class="results-list"></ul>
+        </div>
+        <div class="ktv-tab-content" id="ktv-tab-popular">
+          <ul id="ktv-popular-list" class="results-list"></ul>
+        </div>
+      </div>
+    </div>
+    <aside class="ktv-sidebar">
+      <div class="sidebar-section" id="now-singing-section" style="display:none">
+        <div class="sidebar-title" data-icon-label="mic">NOW SINGING</div>
+        <ul id="now-singing-list" class="queue-list"></ul>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title" data-icon-label="music">UP NEXT</div>
+        <ul id="queue-list" class="queue-list"></ul>
+        <p id="queue-empty" class="sidebar-empty">No songs in queue. Search and add one!</p>
+      </div>
+      <div class="rtabs">
+        <div class="rtab active" data-rtab="mysongs">My Songs</div>
+        <div class="rtab" data-rtab="activity">Activity</div>
+      </div>
+      <div class="rtab-content active" id="rtab-mysongs">
+        <ul id="mysongs-list" class="queue-list"></ul>
+      </div>
+      <div class="rtab-content" id="rtab-activity">
+        <ul id="activity-list" class="activity-list"></ul>
+      </div>
+      <div class="sidebar-leave">
+        <button id="sidebar-leave-btn" class="btn btn-danger btn-block btn-sm">Leave KTV</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ============ SETTINGS MODAL ============ -->
+<div id="settings-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Settings</h2>
+      <button class="icon-btn" data-close></button>
+    </div>
+    <div class="modal-body">
+      <div class="setting-group">
+        <label>Your Name</label>
+        <input type="text" id="display-name" placeholder="Display name">
+        <button id="save-display-name" class="btn btn-ghost btn-block">Save Name</button>
+      </div>
+      <div class="setting-group">
+        <label>Theme</label>
+        <div id="theme-grid" class="theme-grid"></div>
+      </div>
+      <div class="setting-group">
+        <button id="open-admin-btn" class="btn btn-secondary btn-block">Admin Panel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ KTV INFO MODAL ============ -->
+<div id="ktv-info-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>KTV Info</h2>
+      <button class="icon-btn" data-close></button>
+    </div>
+    <div class="modal-body">
+      <p>KTV Code: <strong id="info-ktv-code"></strong></p>
+      <p>Share this code with friends so they can join!</p>
+      <div id="qr-code-container" class="qr-code-container">
+        <div class="qr-loading">Loading QR...</div>
+      </div>
+      <p class="qr-subtitle">Scan with another device to join</p>
+      <p id="qr-join-url" class="qr-join-url"></p>
+      <button id="copy-join-link" class="btn btn-ghost btn-block" style="margin-top:8px">Copy Join Link</button>
+      <button id="leave-from-info" class="btn btn-danger btn-block" style="margin-top:12px">Leave KTV</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROOM NOT FOUND MODAL ============ -->
+<div id="room-not-found-modal" class="modal hidden">
+  <div class="modal-content" style="max-width:380px;text-align:center">
+    <div class="modal-body" style="padding:32px 24px">
+      <div style="font-size:48px;margin-bottom:12px">🚫</div>
+      <h2 style="font-size:20px;margin-bottom:8px">Room Code Not Exist</h2>
+      <p style="color:var(--muted);margin-bottom:24px;font-size:14px">
+        The room code you entered does not exist.<br>
+        Please check the code and try again.
+      </p>
+      <button id="room-not-found-retry-btn" class="btn btn-primary btn-block">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SONG LIMIT MODAL ============ -->
+<div id="song-limit-modal" class="modal hidden">
+  <div class="modal-content" style="max-width:380px;text-align:center">
+    <div class="modal-body" style="padding:32px 24px">
+      <div style="font-size:48px;margin-bottom:12px">🎵</div>
+      <h2 style="font-size:20px;margin-bottom:8px">Song Limit Reached</h2>
+      <p style="color:var(--muted);margin-bottom:24px;font-size:14px">
+        You can only have <strong id="song-limit-max">3</strong> songs queued at a time.<br>
+        Wait for one of your songs to play before adding more.
+      </p>
+      <button class="btn btn-primary btn-block" data-close>Got It</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REGISTRATION MODAL ============ -->
+<div id="register-modal" class="modal hidden">
+  <div class="modal-content" style="max-width:400px">
+    <div class="modal-header">
+      <h2>Register Your Device</h2>
+      <button class="icon-btn" data-close id="register-close-btn"></button>
+    </div>
+    <div class="modal-body" style="padding:24px">
+      <p style="font-size:14px;color:var(--muted);margin-bottom:16px">
+        Enter your email to register this device and start using the app.
+      </p>
+      <input type="email" id="register-email" placeholder="Enter your email" autocomplete="email" style="width:100%;padding:12px 14px;border:2px solid var(--surface-2);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;background:var(--surface);color:var(--text);margin-bottom:8px" required>
+      <input type="password" id="register-password" placeholder="Create or enter password (8+ characters)" autocomplete="new-password" minlength="8" style="width:100%;padding:12px 14px;border:2px solid var(--surface-2);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;background:var(--surface);color:var(--text);margin-bottom:8px" required>
+      <p id="register-error" class="error-msg hidden" style="color:#e74c3c;font-size:13px;margin-bottom:8px"></p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:20px">Your email is logged for the KTV owner. By registering you agree to join this session.</p>
+      <div style="display:flex;gap:10px">
+        <button id="register-cancel-btn" class="btn btn-secondary" style="flex:1">Cancel</button>
+        <button id="register-submit-btn" class="btn btn-primary" style="flex:1">Register</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LOCKED OVERLAY (shown when user cancels registration) ============ -->
+<div id="locked-overlay" class="modal hidden" style="z-index:200">
+  <div class="modal-content" style="max-width:380px;text-align:center;border-radius:var(--radius) var(--radius) 0 0">
+    <div class="modal-body" style="padding:40px 24px">
+      <div style="font-size:56px;margin-bottom:16px">🔒</div>
+      <h2 style="font-size:20px;margin-bottom:8px">Registration Required</h2>
+      <p style="color:var(--muted);margin-bottom:24px;font-size:14px">
+        You need to register your email to use this app.
+      </p>
+      <button id="locked-register-btn" class="btn btn-primary btn-block">Register Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADMIN LOGIN MODAL ============ -->
+<div id="admin-login-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Admin Login</h2>
+      <button class="icon-btn" data-close></button>
+    </div>
+    <div class="modal-body">
+      <input type="password" id="admin-pass" class="admin-pass-input" placeholder="Admin password">
+      <button id="admin-login-btn" class="btn btn-primary btn-block" style="margin-top:8px">Login</button>
+      <p id="admin-login-error" class="error-msg hidden"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADMIN PANEL MODAL ============ -->
+<div id="admin-modal" class="modal hidden">
+  <div class="modal-content modal-lg">
+    <div class="modal-header">
+      <h2>Admin Panel</h2>
+      <button class="icon-btn" data-close></button>
+    </div>
+    <div class="modal-body">
+      <div class="admin-section">
+        <h3>Identity</h3>
+        <label>App Name</label>
+        <input type="text" id="cfg-app-name">
+        <label>Tagline</label>
+        <input type="text" id="cfg-app-tagline">
+        <label>URL Path</label>
+        <input type="text" id="cfg-base-path">
+        <button id="save-identity" class="btn btn-primary btn-block" style="margin-top:8px">Save Identity</button>
+      </div>
+      <div class="admin-section">
+        <h3>Default Theme</h3>
+        <select id="cfg-default-theme" class="admin-select">
+          <option value="neonpop">Neon Pop</option>
+          <option value="retro80s">Retro 80s</option>
+          <option value="classicktv">Classic KTV</option>
+          <option value="midnight">Midnight Neon</option>
+          <option value="sunrise">Sunrise Pastel</option>
+          <option value="aurora">Aurora</option>
+          <option value="glass">Glass</option>
+          <option value="slate">Slate</option>
+          <option value="ocean">Ocean</option>
+          <option value="sunset">Sunset</option>
+        </select>
+        <button id="save-theme" class="btn btn-primary btn-block" style="margin-top:8px">Save Theme</button>
+      </div>
+      <div class="admin-section">
+        <h3>Refresh Animation</h3>
+        <p style="font-size:12px;color:#999;margin-bottom:8px">Choose the animation played when the refresh button is tapped on any display.</p>
+        <select id="cfg-refresh-animation" class="admin-select">
+          <option value="fall">Fall — content drops down, snaps back up</option>
+          <option value="shatter">Shatter — screen breaks apart, reassembles</option>
+          <option value="spin">Spin — screen flips 360° like a record</option>
+          <option value="glitch">Glitch — digital RGB glitch & jitter</option>
+          <option value="dissolve">Dissolve — fades to particles, materializes back</option>
+          <option value="pulse">Pulse — gentle zoom-pulse flash (subtle)</option>
+          <option value="none">None — instant refresh, no animation</option>
+        </select>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="preview-anim" class="btn btn-secondary" style="flex:1">Preview</button>
+          <button id="save-refresh-anim" class="btn btn-primary" style="flex:1">Save Animation</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <h3>Video Player</h3>
+        <p style="font-size:12px;color:#999;margin-bottom:8px">Choose which player renders videos. Video.js supports PiP and any video format (MP4, WebM, HLS).</p>
+        <select id="cfg-video-player" class="admin-select">
+          <option value="youtube">YouTube IFrame (default)</option>
+          <option value="videojs">Video.js (PiP + all formats)</option>
+        </select>
+        <button id="save-video-player" class="btn btn-primary btn-block" style="margin-top:8px">Save Player</button>
+      </div>
+      <div class="admin-section">
+        <h3>Display Buttons</h3>
+        <label class="checkbox-row"><input type="checkbox" id="cfg-show-live-music"> Live Music Button</label>
+        <label class="checkbox-row"><input type="checkbox" id="cfg-show-search"> Search Tab</label>
+        <label class="checkbox-row"><input type="checkbox" id="cfg-show-queue"> Queue Tab</label>
+        <label class="checkbox-row"><input type="checkbox" id="cfg-show-popular"> Popular Tab</label>
+        <label class="checkbox-row"><input type="checkbox" id="cfg-show-mysongs"> My Songs Tab</label>
+        <button id="save-buttons" class="btn btn-primary btn-block" style="margin-top:8px">Save Buttons</button>
+      </div>
+      <div class="admin-section">
+        <h3>Footer Text</h3>
+        <label>Credit Line</label>
+        <input type="text" id="cfg-footer-credit" placeholder="Built with ❤️ by ...">
+        <label>Support Line</label>
+        <input type="text" id="cfg-footer-support" placeholder="For support, contact us.">
+        <label>Link 1 Text</label>
+        <input type="text" id="cfg-footer-link1-text" placeholder="Contact Us">
+        <label>Link 1 URL (mailto:, https://, or blank)</label>
+        <input type="text" id="cfg-footer-link1-url" placeholder="mailto:support@example.com">
+        <label>Link 2 Text</label>
+        <input type="text" id="cfg-footer-link2-text" placeholder="Report a Bug">
+        <label>Link 2 URL</label>
+        <input type="text" id="cfg-footer-link2-url" placeholder="https://...">
+        <label>Link 3 Text</label>
+        <input type="text" id="cfg-footer-link3-text" placeholder="Send Feedback">
+        <label>Link 3 URL</label>
+        <input type="text" id="cfg-footer-link3-url" placeholder="https://...">
+        <button id="save-footer" class="btn btn-primary btn-block" style="margin-top:8px">Save Footer</button>
+        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(0,0,0,0.08)">
+        <label>Footer QR Code (shown on right side of footer)</label>
+        <input type="file" id="cfg-footer-qr-file" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="margin-bottom:6px">
+        <div id="cfg-footer-qr-preview" style="margin-bottom:8px"></div>
+        <button id="upload-qr" class="btn btn-secondary btn-block" style="margin-bottom:6px">Upload QR Code</button>
+        <button id="remove-qr" class="btn btn-secondary btn-block">Remove QR Code</button>
+      </div>
+      <div class="admin-section">
+        <h3>Login</h3>
+        <label class="checkbox-row"><input type="checkbox" id="cfg-email-login"> Email Login Required</label>
+        <button id="save-email" class="btn btn-primary btn-block" style="margin-top:8px">Save Login Setting</button>
+      </div>
+      <div class="admin-section">
+        <h3>Admin Password</h3>
+        <input type="password" id="cfg-admin-pass" placeholder="New password">
+        <button id="save-admin-pass" class="btn btn-primary btn-block" style="margin-top:8px">Change Password</button>
+      </div>
+      <div class="admin-section">
+        <h3>Remote Song Limit</h3>
+        <p style="font-size:12px;color:#999;margin-bottom:8px">
+          When enabled, each remote device is limited to <strong>3 songs</strong> in the queue at a time.
+          Only applies when more than <strong>2 remote devices</strong> are in the room. A single remote device has unlimited songs. Host devices are never limited.
+        </p>
+        <div id="admin-rooms-list" style="margin-bottom:12px">
+          <p style="font-size:13px;color:#999">No active rooms.</p>
+        </div>
+        <button id="refresh-rooms-btn" class="btn btn-secondary btn-block" style="margin-top:8px">Refresh Room List</button>
+      </div>
+      <div class="admin-section">
+        <h3>Recent Logins</h3>
+        <table id="logins-table"><thead><tr><th>Email</th><th>IP</th><th>Time</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="admin-section">
+        <h3>Users</h3>
+        <table id="users-table"><thead><tr><th>Email</th><th>Name</th><th>Banned</th><th>Last Seen</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== QR SCANNER MODAL ====== -->
+<div id="qr-scanner-modal" class="modal hidden">
+  <div class="modal-content qr-scanner-content">
+    <div class="modal-header">
+      <h2>Scan QR Code</h2>
+      <button class="icon-btn" data-close id="qr-close-btn"></button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div class="qr-scanner-wrap">
+        <video id="qr-video" class="qr-video" playsinline muted></video>
+        <canvas id="qr-canvas" class="qr-canvas-hidden"></canvas>
+        <div class="qr-scanner-overlay">
+          <div class="qr-scanner-frame"></div>
+        </div>
+        <div id="qr-status" class="qr-status">Point camera at a ktv code QR</div>
+      </div>
+      <div class="qr-scanner-actions">
+        <button id="qr-cancel-btn" class="btn btn-block" style="margin-top:0">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#app -->
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<!-- Video.js core + YouTube tech + PiP plugin -->
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/videojs-youtube@3.0.1/dist/Youtube.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
+
