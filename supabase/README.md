@@ -1,30 +1,25 @@
-# OU KTV — Free-tier backend foundation
+# OU KTV — Supabase backend foundation
 
-This branch adds the first Supabase backend foundation without changing the existing Android APK workflow on `main`.
+This branch contains a Supabase Edge Function API, PostgreSQL room/queue schema, a GitHub Pages build, and the original OU KTV browser interface.
 
-## Included
-- Postgres tables for rooms, members, queue, cheers, and app configuration.
-- Read-only RLS policies for browser clients.
-- Atomic room action function (add song, play, pause, stop, next, cheer, remove, join, leave).
-- Edge Function `ktv-api` for app configuration, no-email test login, room creation/checking, room actions, and placeholder search responses.
+## Deployment prerequisites
 
-## Required one-time setup
-A Supabase project must be created by the project owner. ChatGPT cannot create a third-party account or accept its terms on the owner's behalf.
+A Supabase project and GitHub Pages build variables are required; repository code cannot create or authorize cloud resources in your account.
 
-1. Create a free project at https://supabase.com/dashboard.
-2. In **SQL Editor**, run `migrations/202610310001_ouktv_core.sql`.
-3. Install the Supabase CLI and link this repository/project.
-4. Set the Edge Function secret `SUPABASE_SERVICE_ROLE_KEY` in Supabase secrets. Never put this secret in the website or APK.
-5. Deploy: `supabase functions deploy ktv-api`.
-6. Copy the Project URL and public anon/publishable key for frontend configuration.
+1. Apply `migrations/202610310001_ouktv_core.sql`, then `migrations/202611170001_ouktv_backend_hardening.sql` in the Supabase SQL Editor (or use the Supabase CLI).
+2. Set `SUPABASE_SERVICE_ROLE_KEY` as an Edge Function secret. **Never place it in browser code or GitHub Actions variables.**
+3. Deploy `supabase/functions/ktv-api/index.ts` as `ktv-api`.
+4. Add GitHub Actions repository variables `SUPABASE_URL` and `SUPABASE_ANON_KEY` (public/publishable key only), then run the Pages workflow.
+5. Optionally add `YOUTUBE_API_KEY` as a Supabase Edge Function secret for official YouTube Data API search and quota-controlled results. Without it, the API tries YouTube's public web search endpoint, which YouTube may change or restrict.
 
-## Important current limitations
-This is a backend foundation/MVP, not yet the completed app integration:
-- The existing OU KTV web client still expects a custom WebSocket server. The Supabase Realtime subscription adapter still needs to be connected before multi-phone room state is live.
-- Song search currently returns an explanatory empty response. A YouTube Data API key (stored as a server-side Edge Function secret) is needed for reliable search.
-- Admin login/configuration and admin user/room management endpoints are not implemented in this first backend pass.
-- Test login intentionally skips email registration. Do not use it as production authentication.
-- Free-tier limits and availability are controlled by Supabase and may change.
+The Edge Function currently supports public configuration, guest-mode login, room creation/checking, room actions, popular videos, and search. Host-only room controls use a high-entropy host token, hashed in the database. Guest login remains test/guest mode, not account registration. Admin routes, production user accounts, moderation, analytics, and end-to-end playback verification are not implemented by this foundation and should not be advertised as available.
 
-## Safety
-The service-role key must remain server-side in Supabase Edge Function secrets. Only the public anon/publishable key may be used by the browser client. Do not commit passwords, private keys, or service-role credentials.
+## Verify after setup
+
+- `GET https://PROJECT_REF.supabase.co/functions/v1/ktv-api/config`
+- `GET https://PROJECT_REF.supabase.co/functions/v1/ktv-api/search?q=hello&type=music`
+- Create a room from the site and verify a second device can join using its six-character code.
+- Confirm host controls fail from a guest device and succeed from the host.
+- Check browser console and Supabase Function/Postgres logs during a full host/guest playback session.
+
+Only the project owner can provide the actual project configuration and authorize deployment. A successful Pages build does not by itself mean the Supabase backend is configured.
