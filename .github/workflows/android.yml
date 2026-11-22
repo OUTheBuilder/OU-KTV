@@ -1,5 +1,5 @@
 name: Build OU KTV Android APK
-# Builds the uploaded v2 source archive into a debug APK artifact.
+# Builds the uploaded Android source archive into a debug APK artifact.
 on:
   workflow_dispatch:
   push:
@@ -7,34 +7,72 @@ on:
     paths:
       - 'OU-KTV-Fresh-Android-Project-v2.zip'
       - '.github/workflows/android.yml'
+
 permissions:
   contents: read
+
 jobs:
   build-debug-apk:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+
       - name: Set up Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.11.1
+
       - name: Extract Android project
+        shell: bash
         run: |
+          set -euo pipefail
+          rm -rf extracted-project
+          mkdir -p extracted-project
           unzip -q OU-KTV-Fresh-Android-Project-v2.zip -d extracted-project
-          test -f extracted-project/OU-KTV-Fresh/app/build.gradle
-          test -f extracted-project/OU-KTV-Fresh/settings.gradle
+
+          echo "Archive contents:"
+          find extracted-project -maxdepth 5 -type f | sort | head -200
+
+          PROJECT_DIR="$(find extracted-project -type f \( -path '*/app/build.gradle' -o -path '*/app/build.gradle.kts' \) -print -quit | xargs -r dirname | xargs -r dirname)"
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "::error::Could not locate an Android Gradle project containing app/build.gradle or app/build.gradle.kts inside the ZIP."
+            exit 1
+          fi
+
+          if [ ! -f "$PROJECT_DIR/settings.gradle" ] && [ ! -f "$PROJECT_DIR/settings.gradle.kts" ]; then
+            echo "::error::Android project was found at $PROJECT_DIR but settings.gradle/settings.gradle.kts is missing."
+            exit 1
+          fi
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Detected Android project: $PROJECT_DIR"
+
       - name: Build debug APK
-        working-directory: extracted-project/OU-KTV-Fresh
-        run: gradle assembleDebug
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: gradle assembleDebug --stacktrace
+
+      - name: Verify APK output
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find "$PROJECT_DIR/app/build/outputs/apk" -type f -name '*.apk' -print -quit)"
+          if [ -z "$APK" ]; then
+            echo "::error::Gradle completed but no APK was produced."
+            exit 1
+          fi
+          echo "APK produced: $APK"
+          echo "APK=$APK" >> "$GITHUB_ENV"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: OU-KTV-debug-apk
-          path: extracted-project/OU-KTV-Fresh/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.APK }}
           if-no-files-found: error
