@@ -153,7 +153,8 @@ let playerEngine = 'youtube';
 // Current refresh animation type (from server config, overridable by admin)
 let refreshAnimation = 'fall';
 // Base path derived from the page URL (e.g. '/ktv') so API/WS hit the right backend
-const BASE = location.pathname.replace(/\/[^\/]*$/, '') || '';
+const API_ORIGIN = String(window.KTV_API_BASE || '').replace(/\/+$/, '');
+const BASE = API_ORIGIN ? '' : (location.pathname.replace(/\/[^\/]*$/, '') || '');
 
 // ---------- Themes ----------
 const THEMES = [
@@ -205,7 +206,7 @@ async function api(path, opts = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
   else if (userToken) headers['Authorization'] = 'Bearer ' + userToken;
-  const r = await fetch(`${BASE}/api${path}`, { ...opts, headers });
+  const r = await fetch(`${API_ORIGIN}${BASE}/api${path}`, { ...opts, headers });
   const data = await r.json();
   if (!r.ok) {
     if (r.status === 401 && adminToken && !path.includes('/admin/login')) {
@@ -1759,7 +1760,9 @@ async function loadRemotePopular() {
 function connectWS(code) { if (ws) ws.close(); ws = doConnectWS(code); }
 function doConnectWS(code) {
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  const sock = new WebSocket(`${proto}://${location.host}${BASE}/ws`);
+  const wsUrl = new URL(`${BASE}/ws`, API_ORIGIN || location.origin);
+  wsUrl.protocol = wsUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+  const sock = new WebSocket(wsUrl.toString());
   sock.onopen = () => {
     wsReconnectTries = 0;
     sock.send(JSON.stringify({
