@@ -109,6 +109,17 @@ jobs:
               icon.save(d/"ic_launcher_round.png")
           PY
 
+      - name: Inspect packaged app for registration code
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Decoded APK file inventory:"
+          find decoded -type f | sort | head -300
+          echo "Files containing registration/auth markers:"
+          grep -RIlE 'Unregistered device|showRegistrationModal|register-modal|email_login_enabled|Registration failed' decoded || true
+          echo "Registration-related text matches:"
+          grep -RInE 'Unregistered device|showRegistrationModal|register-modal|email_login_enabled|Registration failed' decoded --include='*.js' --include='*.html' --include='*.xml' | head -200 || true
+
       - name: Rebuild APK
         run: apktool b decoded -o rebranded-unsigned.apk
 
