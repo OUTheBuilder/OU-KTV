@@ -1,0 +1,131 @@
+name: Rebrand OU KTV APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/rebrand-apk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  rebrand:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install APK editing tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apktool
+          echo "$ANDROID_HOME/build-tools/35.0.0" >> "$GITHUB_PATH"
+      - name: Set up Android SDK build tools
+        uses: android-actions/setup-android@v3
+      - name: Install build tools
+        run: sdkmanager "build-tools;35.0.0"
+
+      - name: Extract existing APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p input
+          unzip -q OU-KTV-Fresh-Android-Project-v2.zip -d input
+          APK="$(find input -type f -name 'app-debug.apk' -print -quit)"
+          if [ -z "$APK" ]; then
+            echo "::error::The repository ZIP does not contain app-debug.apk."
+            exit 1
+          fi
+          cp "$APK" original.apk
+          echo "Found existing APK: $APK"
+
+      - name: Decode and apply app name and launcher icon
+        shell: bash
+        run: |
+          set -euo pipefail
+          apktool d -f original.apk -o decoded
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          from PIL import Image, ImageDraw, ImageFilter
+          import math
+
+          root = Path("decoded")
+          manifest = root / "AndroidManifest.xml"
+          tree = ET.parse(manifest)
+          m = tree.getroot()
+          ns = "{http://schemas.android.com/apk/res/android}"
+          app = m.find("application")
+          if app is None:
+              raise SystemExit("AndroidManifest.xml has no application element")
+          app.set(ns + "label", "O/U-KTV")
+          app.set(ns + "icon", "@mipmap/ic_launcher")
+          app.set(ns + "roundIcon", "@mipmap/ic_launcher_round")
+          tree.write(manifest, encoding="utf-8", xml_declaration=True)
+
+          # Recreate the approved neon-microphone visual style as a crisp
+          # adaptive-size launcher icon, since the source APK has no source assets.
+          S = 512
+          im = Image.new("RGB", (S, S), (7, 8, 25))
+          px = im.load()
+          for y in range(S):
+              for x in range(S):
+                  dx, dy = (x-S/2)/(S*.72), (y-S/2)/(S*.72)
+                  glow = max(0, 1-math.sqrt(dx*dx+dy*dy))
+                  px[x,y] = (int(8+18*glow), int(9+5*glow), int(29+35*glow))
+          glow_layer = Image.new("RGBA", (S,S), (0,0,0,0))
+          gd = ImageDraw.Draw(glow_layer)
+          # Neon audio rings
+          gd.arc((75,75,437,437), 205, 335, fill=(0,220,255,180), width=9)
+          gd.arc((95,95,417,417), 25, 155, fill=(255,35,190,180), width=7)
+          # Microphone capsule and stand
+          gd.rounded_rectangle((207,105,305,310), radius=48, fill=(12,20,49,255), outline=(0,235,255,255), width=12)
+          gd.rounded_rectangle((226,126,286,288), radius=30, outline=(255,55,198,255), width=7)
+          gd.arc((160,190,352,375), 0, 180, fill=(0,235,255,255), width=13)
+          gd.line((256,375,256,420), fill=(0,235,255,255), width=13)
+          gd.line((205,420,307,420), fill=(255,55,198,255), width=13)
+          # Small equalizer bars
+          for x,h in [(135,48),(160,78),(352,78),(377,48)]:
+              gd.rounded_rectangle((x,330-h//2,x+12,330+h//2), radius=6, fill=(255,55,198,230))
+          glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(1.2))
+          im = Image.alpha_composite(im.convert("RGBA"), glow_layer)
+          sizes = {"mdpi":48,"hdpi":72,"xhdpi":96,"xxhdpi":144,"xxxhdpi":192}
+          for density,size in sizes.items():
+              d = root / "res" / f"mipmap-{density}"
+              d.mkdir(parents=True, exist_ok=True)
+              icon = im.resize((size,size), Image.Resampling.LANCZOS)
+              icon.save(d/"ic_launcher.png")
+              icon.save(d/"ic_launcher_round.png")
+          PY
+
+      - name: Rebuild APK
+        run: apktool b decoded -o rebranded-unsigned.apk
+
+      - name: Align and sign APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          zipalign -f 4 rebranded-unsigned.apk rebranded-aligned.apk
+          keytool -genkeypair -v -keystore ouktv-rebrand.keystore -storepass changeit -keypass changeit -alias ouktv -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=OU KTV, OU=Apps, O=OUTheBuilder, L=Unknown, S=Unknown, C=PH"
+          apksigner sign --ks ouktv-rebrand.keystore --ks-pass pass:changeit --key-pass pass:changeit --out O-U-KTV.apk rebranded-aligned.apk
+          apksigner verify --verbose O-U-KTV.apk
+
+      - name: Verify package and app label
+        run: |
+          aapt dump badging O-U-KTV.apk | tee apk-metadata.txt
+          grep -F "package: name='com.ouktv.app'" apk-metadata.txt
+          grep -F "application-label:'O/U-KTV'" apk-metadata.txt
+
+      - name: Upload rebranded APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OU-KTV-rebranded-apk
+          path: O-U-KTV.apk
+          if-no-files-found: error
