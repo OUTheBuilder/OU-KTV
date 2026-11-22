@@ -460,9 +460,9 @@ async function boot() {
   if (ktvMatch) pendingKTVCode = ktvMatch[1];
   if (urlCode && !pendingKTVCode) pendingKTVCode = urlCode.toUpperCase().replace(/[^A-Z0-9]/g, '');
   try { CONFIG = await api('/config'); }
+  catch { CONFIG = { app_name: 'O|U KTV', app_tagline: 'Karaoke Together', email_login_enabled: false, default_theme: 'neonpop', buttons: {}, footer: {} }; }
   // Permanently disable the legacy registration gate in this no-registration build.
   CONFIG.email_login_enabled = false;
-  catch { CONFIG = { app_name: 'O|U KTV', app_tagline: 'Karaoke Together', email_login_enabled: false, default_theme: 'neonpop', buttons: {}, footer: {} }; }
   // Load refresh animation from server config
   refreshAnimation = CONFIG.refresh_animation || 'fall';
   // Load video player engine from server config
