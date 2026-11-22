@@ -5,6 +5,9 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/rebrand-apk.yml'
+      - 'OU-KTV-Repaired-v1/app.js'
+      - 'OU-KTV-Repaired-v1/ktv-server/server.py'
+      - 'OU-KTV-Repaired-v1/ktv-server/static/js/app.js'
 
 permissions:
   contents: read
