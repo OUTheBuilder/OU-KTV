@@ -93,5 +93,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: OU-KTV-debug-apk
-          path: ${{ env.APK }}
+          path: output-apk/app-debug.apk
           if-no-files-found: error
