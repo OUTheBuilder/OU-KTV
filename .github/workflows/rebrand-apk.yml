@@ -106,7 +106,8 @@ jobs:
               d.mkdir(parents=True, exist_ok=True)
               icon = im.resize((size,size), Image.Resampling.LANCZOS)
               icon.save(d/"ic_launcher.png")
-              icon.save(d/"ic_launcher_round.png")          PY
+              icon.save(d/"ic_launcher_round.png")
+          PY
 
       - name: Rebuild APK
         run: apktool b decoded -o rebranded-unsigned.apk
