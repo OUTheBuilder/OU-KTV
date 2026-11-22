@@ -976,13 +976,31 @@ async def broadcast_to_room(code: str, msg: dict, exclude: str = None):
 
 @web.middleware
 async def security_middleware(request: web.Request, handler):
-    if "/api/admin/" in request.path and not request.path.endswith("/api/admin/login"):
-        if not admin_auth(request):
-            return web.json_response({"error": "Admin authentication required."}, status=401)
-    if request.path.startswith("/api/") and request.method in ("POST", "PUT", "PATCH"):
-        if request.content_length is not None and request.content_length > 2 * 1024 * 1024:
-            return web.json_response({"error": "Request body too large."}, status=413)
-    response = await handler(request)
+    allowed_origins = {
+        item.strip() for item in os.environ.get(
+            "KTV_ALLOWED_ORIGINS", "https://outhebuilder.github.io"
+        ).split(",") if item.strip()
+    }
+    origin = request.headers.get("Origin", "")
+    if request.method == "OPTIONS" and origin in allowed_origins:
+        response = web.Response(status=204)
+    else:
+        if "/api/admin/" in request.path and not request.path.endswith("/api/admin/login"):
+            if not admin_auth(request):
+                response = web.json_response({"error": "Admin authentication required."}, status=401)
+            else:
+                response = await handler(request)
+        elif request.path.startswith("/api/") and request.method in ("POST", "PUT", "PATCH") and request.content_length is not None and request.content_length > 2 * 1024 * 1024:
+            response = web.json_response({"error": "Request body too large."}, status=413)
+        else:
+            response = await handler(request)
+
+    if origin in allowed_origins:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+        response.headers["Access-Control-Max-Age"] = "600"
+        response.headers["Vary"] = "Origin"
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
