@@ -126,6 +126,9 @@ def load_persisted_data():
     loaded = _load_json(CONFIG_FILE, {})
     if loaded:
         config.update(loaded)
+    # This distribution is intentionally registration-free. Ignore any older
+    # persisted setting that enabled email registration and keep it disabled.
+    config["email_login_enabled"] = False
     config.setdefault("footer", {})
     config.setdefault("buttons", {})
     config["footer"] = {**{
@@ -598,8 +601,8 @@ async def handle_admin_config_post(request: web.Request):
         config["refresh_animation"] = data["refresh_animation"]
     if "video_player" in data:
         config["video_player"] = data["video_player"]
-    if "email_login_enabled" in data:
-        config["email_login_enabled"] = data["email_login_enabled"] in (True, "1", 1)
+    # Registration is permanently disabled in this registration-free build.
+    config["email_login_enabled"] = False
     if "show_live_music_button" in data:
         val = "1" if data["show_live_music_button"] else "0"
         config["show_live_music_button"] = val
