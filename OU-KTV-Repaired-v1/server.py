@@ -126,6 +126,9 @@ def load_persisted_data():
     loaded = _load_json(CONFIG_FILE, {})
     if loaded:
         config.update(loaded)
+    # O/U KTV is distributed without user registration or sign-in.
+    # Ignore persisted/admin values that might re-enable the old registration gate.
+    config["email_login_enabled"] = False
     config.setdefault("footer", {})
     config.setdefault("buttons", {})
     config["footer"] = {**{
@@ -599,7 +602,7 @@ async def handle_admin_config_post(request: web.Request):
     if "video_player" in data:
         config["video_player"] = data["video_player"]
     if "email_login_enabled" in data:
-        config["email_login_enabled"] = data["email_login_enabled"] in (True, "1", 1)
+        config["email_login_enabled"] = False
     if "show_live_music_button" in data:
         val = "1" if data["show_live_music_button"] else "0"
         config["show_live_music_button"] = val
