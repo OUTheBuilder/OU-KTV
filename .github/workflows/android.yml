@@ -29,7 +29,7 @@ jobs:
         with:
           gradle-version: 8.11.1
 
-      - name: Extract Android project
+      - name: Prepare Android APK
         shell: bash
         run: |
           set -euo pipefail
@@ -40,9 +40,21 @@ jobs:
           echo "Archive contents:"
           find extracted-project -maxdepth 5 -type f | sort | head -200
 
+          # The current repository archive may be either the original Android
+          # source project or an APK artifact that was renamed to .zip.
+          PREBUILT_APK="$(find extracted-project -type f -name 'app-debug.apk' -print -quit)"
+          if [ -n "$PREBUILT_APK" ]; then
+            echo "Detected prebuilt APK: $PREBUILT_APK"
+            mkdir -p output-apk
+            cp "$PREBUILT_APK" output-apk/app-debug.apk
+            echo "APK_PATH=output-apk/app-debug.apk" >> "$GITHUB_ENV"
+            echo "BUILD_MODE=prebuilt" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
           PROJECT_DIR="$(find extracted-project -type f \( -path '*/app/build.gradle' -o -path '*/app/build.gradle.kts' \) -print -quit | xargs -r dirname | xargs -r dirname)"
           if [ -z "$PROJECT_DIR" ]; then
-            echo "::error::Could not locate an Android Gradle project containing app/build.gradle or app/build.gradle.kts inside the ZIP."
+            echo "::error::Could not locate an Android Gradle project or prebuilt app-debug.apk inside the ZIP."
             exit 1
           fi
 
@@ -52,9 +64,11 @@ jobs:
           fi
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Detected Android project: $PROJECT_DIR"
+          echo "BUILD_MODE=source" >> "$GITHUB_ENV"
+          echo "Detected Android source project: $PROJECT_DIR"
 
-      - name: Build debug APK
+      - name: Build debug APK from source
+        if: env.BUILD_MODE == 'source'
         working-directory: ${{ env.PROJECT_DIR }}
         run: gradle assembleDebug --stacktrace
 
@@ -62,13 +76,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          APK="$(find "$PROJECT_DIR/app/build/outputs/apk" -type f -name '*.apk' -print -quit)"
-          if [ -z "$APK" ]; then
-            echo "::error::Gradle completed but no APK was produced."
-            exit 1
+          if [ "$BUILD_MODE" = "source" ]; then
+            APK="$(find "$PROJECT_DIR/app/build/outputs/apk" -type f -name '*.apk' -print -quit)"
+            if [ -z "$APK" ]; then
+              echo "::error::Gradle completed but no APK was produced."
+              exit 1
+            fi
+            mkdir -p output-apk
+            cp "$APK" output-apk/app-debug.apk
           fi
-          echo "APK produced: $APK"
-          echo "APK=$APK" >> "$GITHUB_ENV"
+          test -s output-apk/app-debug.apk
+          echo "APK produced: output-apk/app-debug.apk ($BUILD_MODE mode)"
+          echo "APK_PATH=output-apk/app-debug.apk" >> "$GITHUB_ENV"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
