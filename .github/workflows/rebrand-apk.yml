@@ -68,40 +68,45 @@ jobs:
           app.set(ns + "roundIcon", "@mipmap/ic_launcher_round")
           tree.write(manifest, encoding="utf-8", xml_declaration=True)
 
-          # Recreate the approved neon-microphone visual style as a crisp
-          # adaptive-size launcher icon, since the source APK has no source assets.
+          # Create a polished O/U-KTV launcher mark: deep midnight background,
+          # cyan/pink neon audio rings, a central microphone, and equalizer accents.
           S = 512
-          im = Image.new("RGB", (S, S), (7, 8, 25))
-          px = im.load()
+          im = Image.new("RGBA", (S, S), (5, 8, 25, 255))
+          # Subtle radial blue-violet background glow
+          pix = im.load()
           for y in range(S):
               for x in range(S):
-                  dx, dy = (x-S/2)/(S*.72), (y-S/2)/(S*.72)
-                  glow = max(0, 1-math.sqrt(dx*dx+dy*dy))
-                  px[x,y] = (int(8+18*glow), int(9+5*glow), int(29+35*glow))
-          glow_layer = Image.new("RGBA", (S,S), (0,0,0,0))
-          gd = ImageDraw.Draw(glow_layer)
-          # Neon audio rings
-          gd.arc((75,75,437,437), 205, 335, fill=(0,220,255,180), width=9)
-          gd.arc((95,95,417,417), 25, 155, fill=(255,35,190,180), width=7)
-          # Microphone capsule and stand
-          gd.rounded_rectangle((207,105,305,310), radius=48, fill=(12,20,49,255), outline=(0,235,255,255), width=12)
-          gd.rounded_rectangle((226,126,286,288), radius=30, outline=(255,55,198,255), width=7)
-          gd.arc((160,190,352,375), 0, 180, fill=(0,235,255,255), width=13)
-          gd.line((256,375,256,420), fill=(0,235,255,255), width=13)
-          gd.line((205,420,307,420), fill=(255,55,198,255), width=13)
-          # Small equalizer bars
-          for x,h in [(135,48),(160,78),(352,78),(377,48)]:
-              gd.rounded_rectangle((x,330-h//2,x+12,330+h//2), radius=6, fill=(255,55,198,230))
-          glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(1.2))
-          im = Image.alpha_composite(im.convert("RGBA"), glow_layer)
+                  dx, dy = (x-S/2)/(S*.78), (y-S/2)/(S*.78)
+                  g = max(0, 1-math.sqrt(dx*dx+dy*dy))
+                  pix[x,y] = (int(5+12*g), int(8+7*g), int(25+42*g), 255)
+          glow = Image.new("RGBA", (S,S), (0,0,0,0))
+          d = ImageDraw.Draw(glow)
+          # Rounded neon frame and sound-wave arcs
+          d.rounded_rectangle((34,34,478,478), radius=112, outline=(0,220,255,210), width=9)
+          d.arc((72,90,440,458), 205, 335, fill=(0,225,255,220), width=12)
+          d.arc((92,70,420,398), 25, 155, fill=(255,45,190,210), width=10)
+          # Microphone body with layered neon outline
+          d.rounded_rectangle((198,104,314,316), radius=58, fill=(14,23,55,255), outline=(0,235,255,255), width=13)
+          d.rounded_rectangle((217,124,295,296), radius=39, outline=(255,55,198,255), width=7)
+          # Mic grille
+          for yy in (166,190,214,238):
+              d.line((232,yy,280,yy), fill=(0,225,255,210), width=5)
+          # Stand and cradle
+          d.arc((151,188,361,386), 0, 180, fill=(0,235,255,255), width=14)
+          d.line((256,386,256,426), fill=(0,235,255,255), width=14)
+          d.line((202,426,310,426), fill=(255,55,198,255), width=12)
+          # Equalizer bars at the base sides
+          for x,h,col in [(112,46,(255,55,198,255)),(139,78,(0,225,255,255)),(360,78,(0,225,255,255)),(387,46,(255,55,198,255))]:
+              d.rounded_rectangle((x,338-h//2,x+13,338+h//2), radius=6, fill=col)
+          glow = glow.filter(ImageFilter.GaussianBlur(1.0))
+          im = Image.alpha_composite(im, glow)
           sizes = {"mdpi":48,"hdpi":72,"xhdpi":96,"xxhdpi":144,"xxxhdpi":192}
           for density,size in sizes.items():
               d = root / "res" / f"mipmap-{density}"
               d.mkdir(parents=True, exist_ok=True)
               icon = im.resize((size,size), Image.Resampling.LANCZOS)
               icon.save(d/"ic_launcher.png")
-              icon.save(d/"ic_launcher_round.png")
-          PY
+              icon.save(d/"ic_launcher_round.png")          PY
 
       - name: Rebuild APK
         run: apktool b decoded -o rebranded-unsigned.apk
