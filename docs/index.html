@@ -12994,7 +12994,10 @@ let playerEngine = 'youtube';
 // Current refresh animation type (from server config, overridable by admin)
 let refreshAnimation = 'fall';
 // Base path derived from the page URL (e.g. '/ktv') so API/WS hit the right backend
+window.KTV_API_BASE = window.KTV_API_BASE || '';
+const API_ORIGIN = String(window.KTV_API_BASE || '').replace(/\/+$/, '');
 const BASE = location.pathname.replace(/\/[^\/]*$/, '') || '';
+const API_BASE = API_ORIGIN ? '' : BASE;
 
 // ---------- Themes ----------
 const THEMES = [
